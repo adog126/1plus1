@@ -1,0 +1,102 @@
+#+TITLE: README
+#+SETUPFILE: ~/elisp/org-html-themes/setup/theme-readtheorg.setup
+
+* Prerequisites
+** Install Emacs and use ~spacemacs~
+ - https://github.com/syl20bnr/spacemacs#prerequisites
+
+   #+begin_example
+   brew tap d12frosted/emacs-plus
+   brew install emacs-plus
+   ln -s /usr/local/Cellar/emacs-plus/*/Emacs.app /Applications
+   #+end_example
+
+** Install Latex
+   #+begin_example
+   brew cask install mactex
+   #+end_example
+
+* Template Export
+
+  #+begin_example
+  cd ~
+  mkdir elisp
+  cd elisp
+  #+end_example
+
+** Latex Template
+  #+begin_example
+  git clone https://github.com/chianwei123/org-latex-templates
+  #+end_example
+
+** HTML Template
+   #+begin_example
+   git clone https://github.com/chianwei123/org-html-themes
+   #+end_example
+* Git Guideline
+- [[./git-v9.pdf]]
+- https://gitbook.tw/
+
+* VIM Guidline
+** Overview
+#+ATTR_ORG: :width 600
+[[./vim_mode.png]]
+
+說明如下 [fn:1] ：
+
+- ~Normal 模式~ ，又稱命令模式，在這個模式下，無法輸入文字，僅能進行複製、貼上、存檔或離開動作。
+- 要開始輸入文字，需要先按下 ~i~ , ~a~ 或 ~o~ 這三個鍵其中一個進入 ~Insert 模式~ ，便能開始打字。
+  - i 表示 insert，
+  - a 表示 append，
+  - o 表示 會新增一行並開始輸入。
+- 在 Insert 模式下，按下 ~ESC 鍵~ 可退回至 Normal 模式。
+- 在 Normal 模式下，按下 ~:w~ 會進行存檔，按下 ~:q~ 會關閉這個檔案（但若未存檔會提示先存檔再離開），而 ~:wq~ 則是存檔完成後直接關閉這個檔案
+
+** Basic Instruction
+- reference:[fn:2][fn:3]
+
+| 進入 i-mode 的指令 | Descrption                               |
+|--------------------+------------------------------------------|
+| i                  | 在游標所在字元前開始輸入文字(insert)。   |
+| a                  | 在游標所在字元後開始輸入文字(append)。   |
+| o                  | 在游標所在行下開一新行來輸入文字(open)。 |
+| I                  | 在行首開始輸入文字。                     |
+| A                  | 在行尾開始輸入文字。                     |
+
+
+| 刪除指令 | Descrption                                |
+|----------+-------------------------------------------|
+| x        | 刪除游標所在處之字元                      |
+| X        | 刪除游標前之字元。不可使用 Backspace 鍵。 |
+| dd       | 刪除一整行(delete line)。                 |
+| dw       | 刪除一個字(delete word)。不能適用於中文。 |
+| dG       | 刪至檔尾。                                |
+| d1G      | 刪至檔首。或 dgg(只能用於 vim)。          |
+| D        | 刪至行尾，或 d$（含游標所在處字元）。     |
+| d0       | 刪至行首，或 d^（不含游標所在處字元）。   |
+
+#+begin_quote
+請回憶一下 $ 及 ^ 所代表的意義，您就可以理解 d$ 及 d^ 的動作。
+#+end_quote
+
+| 取代及還原 | Descrption                                                                |
+|------------+---------------------------------------------------------------------------|
+| j          | 取代游標所在處之字元。                                                    |
+| R          | 取代字元至按 Esc 為止。                                                   |
+| cc         | 取代整行內容。或大寫 S 亦可。                                             |
+| cw         | 替換一個英文字(word)，中文不適用。(change)                                |
+| ~          | 游標所在處之大小寫互換。當然不能用於中文。別忘了 Shift！                  |
+| C          | 取代至行尾，即游標所在處以後的字都會被替換。或 c$。                       |
+| c0         | 取代至行首，或 c^。                                                       |
+| s          | 替換一個字元為您所輸入的字串。和 R 不同，R 是覆蓋式的取代，s 則是插入式的 |
+| u          | undo                                                                      |
+| U          | 在游標沒離開本行之前，回復所有編輯動作。                                  |
+| Crtl+r     | 這個也是很重要，就是 redo 鍵。                                            |
+
+* Footnotes
+
+[fn:3] http://www.study-area.org/tips/vim/Vim-2.html
+
+[fn:2] http://www.study-area.org/tips/vim/Vim-3.html
+
+[fn:1] https://gitbook.tw/chapters/command-line/vim-introduction.html

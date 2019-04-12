@@ -1,0 +1,663 @@
+#+TITLE: Emacs Tutorial
+#+SETUPFILE: ~/elisp/org-html-themes/setup/theme-readtheorg.setup
+
+* Prerequisites
+** Install Emacs and use ~spacemacs~
+- https://github.com/syl20bnr/spacemacs#prerequisites
+
+** Fonts on Ubuntu
+  #+BEGIN_SRC
+  [ -d /usr/share/fonts/opentype ] || sudo mkdir /usr/share/fonts/opentype
+  sudo git clone --depth 1 --branch release https://github.com/adobe-fonts/source-code-pro.git /usr/share/fonts/opentype/scp
+  sudo fc-cache -f -v
+  #+END_SRC
+
+** pdflatex
+*** Mac OSX
+#+BEGIN_EXAMPLE
+brew cask install mactex
+#+END_EXAMPLE
+
+** Pandoc
+*** Installing the latest version of Pandoc on Ubuntu
+if latest verson is 2.7.2-1
+	#+begin_example
+	wget https://github.com/jgm/pandoc/releases/download/2.7.2/pandoc-2.7.2-1-amd64.deb
+	sudo dpkg -i pandoc-2.7.2-1-amd64.deb
+	rm pandoc-2.7.2-1-amd64.deb
+
+	pandoc -v
+	#+end_example
+
+* Spacemacs basic setting                                         :spacemacs:
+** =SPC SPC= = =M-x=
+** good config
+  - https://github.com/aaronbieber/dotfiles
+  - https://blog.aaronbieber.com/2017/03/19/organizing-notes-with-refile.html
+
+** dotspacemacs-whitespace-cleanup 'trailing
+
+#+BEGIN_EXAMPLE
+(defun dotspacemacs/init ()
+   ...
+   dotspacemacs-whitespace-cleanup `trailing
+)
+#+END_EXAMPLE
+
+** 在 emacs 中使用 EasyPG 加密文章                                   :gnugpg:
+
+  - https://coldnew.github.io/d3f33ddb/
+
+*** Fixing GPG "Inappropriate ioctl for device" errors
+***** Error message:
+#+BEGIN_EXAMPLE
+Error: gpg: using "D5673F3E" as default secret key for signing
+Error: gpg: signing failed: Inappropriate ioctl for device
+Error: gpg: [stdin]: sign+encrypt failed: Inappropriate ioctl for device
+#+END_EXAMPLE
+***** Solve the problem
+It turns out this error is due to changes in GnuPG 2.1, which only recently landed in Debian Testing. The error occurs because GnuPG 2.1 by default ignores passphrases passed in via environment variables or stdin, and is trying to show a pinentry prompt. "Inappropriate ioctl for device" is thrown because the Backupninja script is not running through a TTY, so there's no way to actually render the prompt.
+
+****** Add this to *~/.gnupg/gpg.conf*
+#+BEGIN_EXAMPLE
+use-agent
+pinentry-mode loopback
+#+END_EXAMPLE
+****** add this to ~/.gnupg/gpg-agent.conf
+#+BEGIN_EXAMPLE
+default-cache-ttl 1
+max-cache-ttl 1
+#+END_EXAMPLE
+
+** shell =SPC '=
+** Customized Keybindings
+
+- ~SPC hor~ and use helm-org-rifle
+   #+begin_example
+  (spacemacs/set-leader-keys "hor" 'helm-org-rifle)
+   #+end_example
+
+- ~, or~ and use helm-org-rifle
+#+begin_example
+  (spacemacs/set-leader-keys-for-major-mode 'org-mode "or" 'helm-org-rifle)
+#+end_example
+
+** find file
+*** Project =SPC p=
+- [good] recently file =SPC p r=
+- file =SPC p f=
+- dir =SPC p d=
+- switch project =SPC p o=
+
+*** File =SPC f=
+- recently file =SPC f r=
+- file =SPC f f=
+- dired file =SPC f j=
+
+** Dired
+DIRectory EDitor
+
+   #+begin_example
+g: 重新整理
++: 新增目錄
+s: 按照時間/檔名排序檔案
+^: 回到上層目錄
+
+m: 標記多個檔案
+u: 取消標記
+U: 清除所有標記
+R: 重新命名/移動（概念與 Unix 下的 mv 相同）
+C: 拷貝檔案
+
+!: 執行外部命令
+&: 非同步地（asynchronously）執行外部命令
+
+D: 刪除單一檔案
+d: 標記多個檔案為刪除
+x: 套用刪除
+
+X: 解壓縮
+   #+end_example
+
+* Edit & Trace code                                                    :edit:
+** ediff =M-x ediff-files=
+   - copy a region to b region =a=
+   - restore a =ra=
+   - store a =wa=
+   - quit =q=
+
+** function outline
+   - outline buffer =SPC s j=
+   - jump back =SPC s `=
+
+** comment/uncomment =g c c=
+** gtags
+
+   - jump definition =, g g=
+   - jump bask =, g p=
+   - reference =, g r=
+   - show stack =, g S=
+   - select tags name =,g s=
+
+** move everywhere =SPC j j=
+** layout =SPC l=
+** surround
+- Visual block mode -> key =s= -> key what u wnat, like =~=
+** Format =M-x tabify=
+
+** IDEA Search                                                       :search:
+   - State "IDEA"       from              [2019-04-06 Sat 11:22]
+
+*** Properties Search ~, / p~
+ use org-sparse-tree
+
+*** file links Search
+ Here is the syntax of the different ways to attach a search to a file link, together with an explanation:
+
+ [[file:~/code/main.c::255]]
+ [[file:~/xx.org::My Target]]
+ [[file:~/xx.org::*My Target]]
+ [[file:~/xx.org::#my-custom-id]]
+ [[file:~/xx.org::/regexp/]]
+ 255
+ Jump to line 255.
+
+ My Target
+ Search for a link target ‘<<My Target>>’, or do a text search for ‘my target’, similar to the search in internal links, see Internal links. In HTML export (see HTML export), such a file link will become an HTML reference to the corresponding named anchor in the linked file.
+
+ *My Target
+ In an Org file, restrict search to headlines.
+
+ #my-custom-id
+ Link to a heading with a CUSTOM_ID property
+
+ /regexp/
+ Do a regular expression search for regexp. This uses the Emacs command occur to list all matches in a separate window. If the target file is in Org mode, org-occur is used to create a sparse tree with the matches.
+
+ As a degenerate case, a file link with an empty file name can be used to search the current file. For example, [[file:::find me]] does a search for ‘find me’ in the current file, just as ‘[[find me]]’ would.
+
+*** String Search
+- [good] smart search ~SPC /~
+  - use ~helm-ag-edit~
+	- Enter a helm-ag buffer using SPC / or any related command.
+	- Search for something you want to edit. This can be regex or just a word.
+	- Don’t hit enter. Instead enter =CTRL-c CTRL-e=.
+	- Make your desired changes.
+	- Enter =CTRL-c CTRL-C= to save your changes.
+- current file search ~/~
+- ag search ~SPC s a~ and use what u want
+
+*** Heading Search
+- https://github.com/alphapapa/helm-org-rifle
+
+	#+begin_quote
+	use helm-org-rifle
+	#+end_quote
+
+Key bindings
+- =SPC hor= or =, or=
+
+* org-mode
+** Table
+*** Table basic(instruction, formaula, plot,...)
+- http://www.zmonster.me/2016/06/03/org-mode-table.html
+
+*** Create table for existing data
+
+~commands~
+	#+begin_example
+	C-c |    (org-table-create-or-convert-from-region)
+	C-c -    (org-table-insert-hline)
+	#+end_example
+
+I have the following data
+
+#+begin_example
+row1
+row2
+row3
+#+end_example
+
+Select your data and type above commands
+
+#+begin_example
+| row1 |
+| row2 |
+| row3 |
+#+end_example
+
+** Export
+*** PDF =, e e and l p=
+- Latex issue: some picture will be moved to last page
+  - Ans: [[latex picture]]
+
+**** Install pdflatex on Mac OSX
+ #+BEGIN_EXAMPLE
+ brew cask install mactex
+ #+END_EXAMPLE
+**** Install pdflatex on ubuntu
+ PdfLatex is a tool that converts Latex sources into PDF. This is specifically very important for researchers, as they use it to publish their findings. It could be installed very easily using Linux terminal, though this seems an annoying task on Windows. Installation commands are given below.
+
+ - Install the TexLive base
+ #+BEGIN_EXAMPLE
+ sudo apt-get install texlive-latex-base
+ #+END_EXAMPLE
+
+ - Also install the recommended and extra fonts to avoid running into the error [1], when trying to use pdflatex on latex files with more fonts.
+ #+BEGIN_EXAMPLE
+ sudo apt-get install texlive-fonts-recommended
+ sudo apt-get install texlive-fonts-extra
+ #+END_EXAMPLE
+
+ - Install the extra packages,
+ #+BEGIN_EXAMPLE
+ sudo apt-get install texlive-latex-extra
+ #+END_EXAMPLE
+
+ Once installed as above, you may be able to create PDF files from latex sources using PdfLatex as below.
+
+ #+BEGIN_EXAMPLE
+ pdflatex latex_source_name.tex
+ #+END_EXAMPLE
+
+*** Slide (beamer)
+ Command: =M-x org-beamer-export-to-pdf=
+
+**** setting
+***** Whale
+#+BEGIN_EXAMPLE
+#+AUTHOR: Chance Yang
+#+LATEX_CLASS: beamer
+#+OPTIONS: H:2
+#+BEAMER_THEME: CambridgeUS
+#+BEAMER_COLOR_THEME: whale
+#+BEAMER_INNER_THEME: default
+#+LaTeX_CLASS_OPTIONS: [aspectratio=169]
+#+BEAMER_HEADER: \setbeamertemplate{itemize items}[default]
+#+BEAMER_HEADER: \setbeamertemplate{enumerate items}[default]
+#+BEAMER_HEADER: \setbeamertemplate{items}[default]
+#+BEAMER_HEADER: \setlength{\parskip}{\smallskipamount}
+#+BEAMER_HEADER: \setbeamercolor{frametitle}{bg=structure.fg!80}
+#+END_EXAMPLE
+
+***** dolphin
+#+BEGIN_EXAMPLE
+#+AUTHOR: Chance
+#+LATEX_CLASS: beamer
+#+OPTIONS: H:2
+#+BEAMER_THEME: CambridgeUS
+#+BEAMER_COLOR_THEME: dolphin
+# We can't just +BEAMER_INNER_THEME: default because that picks the theme default.
+# Override per https://tex.stackexchange.com/questions/11168/change-bullet-style-formatting-in-beamer
+#+BEAMER_INNER_THEME: default
+#+LaTeX_CLASS_OPTIONS: [aspectratio=169]
+#+BEAMER_HEADER: \definecolor{links}{HTML}{0000A0}
+#+BEAMER_HEADER: \hypersetup{colorlinks=,linkcolor=,urlcolor=links}
+#+BEAMER_HEADER: \setbeamertemplate{itemize items}[default]
+#+BEAMER_HEADER: \setbeamertemplate{enumerate items}[default]
+#+BEAMER_HEADER: \setbeamertemplate{items}[default]
+#+BEAMER_HEADER: \setlength{\parskip}{\smallskipamount}
+
+#+END_EXAMPLE
+
+**** image size
+#+BEGIN_EXAMPLE
+#+ATTR_LATEX: :width 0.6\textwidth
+#+END_EXAMPLE
+
+**** subtitle
+#+BEGIN_EXAMPLE
+#+BEAMER: \framesubtitle{subtitle}
+#+END_EXAMPLE
+
+**** reference
+- https://hartwork.org/beamer-theme-matrix/
+- https://zhuanlan.zhihu.com/p/52367509
+- https://github.com/fniessen/refcard-org-beamer
+- https://mpetroff.net/files/beamer-theme-matrix/
+
+*** HTML
+**** [[https://github.com/fniessen/org-html-themes][org-html-themes]]
+- clone from github
+#+BEGIN_EXAMPLE
+cd ~
+mkdir elisp
+git clone https://github.com/fniessen/org-html-themes.git
+#+END_EXAMPLE
+
+- set option to org file
+#+BEGIN_EXAMPLE
+#+SETUPFILE: ~/elisp/org-html-themes/setup/theme-readtheorg.setup
+#+END_EXAMPLE
+
+** install other module
+~C-h v~, type ~org-modules~ and then press ~RET~
+chooses ~drill~ and saved
+
+** Move Heading
+*** Next/previous heading  =gj= =gk=
+*** Parent/child heading =gh= =gl=
+** quick Org TODO =t=
+** agenda
+*** set org-agenda-files
+    =(setq org-agenda-files '("~/Dropbox/org/"))=
+
+** Encrpting org file by using gnupg                                 :gnugpg:
+*** Reference: https://coldnew.github.io/4bb1df06/
+*** Commands:
+    - Encrpting: add tags =secret=
+    - Decrpting: =M-x org-decrpt-entry= or =C-c C-r=
+*** init config
+    #+BEGIN_SRC
+    ;; org-mode 設定
+    (require 'org-crypt)
+
+    ;; 當被加密的部份要存入硬碟時，自動加密回去
+    (org-crypt-use-before-save-magic)
+
+    ;; 設定要加密的 tag 標籤為 secret
+    (setq org-crypt-tag-matcher "secret")
+
+    ;; 避免 secret 這個 tag 被子項目繼承 造成重複加密
+    ;; (但是子項目還是會被加密喔)
+    (setq org-tags-exclude-from-inheritance (quote ("secret")))
+
+    ;; 用於加密的 GPG 金鑰
+    ;; 可以設定任何 ID 或是設成 nil 來使用對稱式加密 (symmetric encryption)
+    (setq org-crypt-key nil)
+    #+END_SRC
+** Archive heading =SPC m A=
+** display image
+#+BEGIN_EXAMPLE
+	  #+NAME: fig:test
+	  #+CAPTION: Screenshot from XXX
+	  #+ATTR_ORG: :width 600
+	  [[file:test.png]]
+#+END_EXAMPLE
+
+** Include files
+- https://orgmode.org/manual/Include-files.html
+- http://www.bagualu.net/wordpress/archives/6549
+
+*** Usage
+Include other files during export. For example, to include your .emacs file, you could use:
+
+#+BEGIN_EXAMPLE
+#+INCLUDE: "~/.emacs" src emacs-lisp
+#+END_EXAMPLE
+
+*** Option
+**** lines
+#+BEGIN_EXAMPLE
+#+INCLUDE: "~/.emacs" :lines "5-10"   Include lines 5 to 10, 10 excluded
+#+INCLUDE: "~/.emacs" :lines "-10"    Include lines 1 to 10, 10 excluded
+#+INCLUDE: "~/.emacs" :lines "10-"    Include lines from 10 to EOF
+#+END_EXAMPLE
+
+**** minlevel
+It shifts the headlines in the included file to become the lowest level. For example, this syntax makes the included file a sibling of the current top-level headline:
+#+BEGIN_EXAMPLE
+#+INCLUDE: "~/my-book/chapter2.org" :minlevel 1
+#+END_EXAMPLE
+
+**** only-contents
+#+BEGIN_EXAMPLE
+#+INCLUDE: "./paper.org::#theory" :only-contents t
+   Include the body of the heading with the custom id ‘theory’
+#+END_EXAMPLE
+
+**** heading and combined
+#+BEGIN_EXAMPLE
+#+INCLUDE: "./paper.org::mytable"  Include named element.
+#+INCLUDE: "./paper.org::*conclusion" :lines 1-20
+   Include the first 20 lines of the headline named ‘conclusion’.
+#+END_EXAMPLE
+
+** Focus Subtree
+1. indirect buffer =, b=
+2. narrow to subtree =, n= and widen =, N=
+
+** Watch outline: imenu-list =SPC b i=
+** Flashcards: ~org-drill~
+- https://github.com/mm--/dot-emacs/blob/master/jmm-org-config.org
+- https://www.youtube.com/watch?v=uraPXeLfWcM
+- https://orgmode.org/worg/org-contrib/org-drill.html
+
+** <<ditaa>> ASCII art diagrams: ~ditaa~
+*** Install
+**** Ubuntu
+#+BEGIN_EXAMPLE
+sudo apt-get install ditaa
+#+END_EXAMPLE
+
+- set config
+#+BEGIN_EXAMPLE
+	(setq org-ditaa-jar-path "/usr/share/ditaa/ditaa.jar")
+#+END_EXAMPLE
+
+**** Macos
+- install java
+#+BEGIN_EXAMPLE
+brew cask install java
+#+END_EXAMPLE
+
+- download ~ditaa.jar~
+  - https://sourceforge.net/projects/ditaa/
+- move ~ditaa.jar~ to emacs folder
+#+BEGIN_EXAMPLE
+cd ~/.emacs.d/elpa/ ; mkdir contrib; mkdir script
+cd contrib/script
+mv /download/path/ditaa.jar ./ditaa.jar
+#+END_EXAMPLE
+
+*** Usage
+
+command: =C-c C-c= or =, ,=
+
+#+begin_example
+#+BEGIN_SRC ditaa :file ./hello-world-round.png :cmdline -r
++--------------+
+|              |
+| Hello World! |
+|              |
++--------------+
+#+END_SRC
+#+end_example
+
+*** Issue: [[Org-Mode Evaluation of code disabled]]
+*** Reference
+- http://yxy.github.io/blog/2017/02/21/hack-emacs-ditaa/
+- http://www.bagualu.net/wordpress/archives/6529
+
+** TODO Artist mode
+   - State "TODO"       from              [2019-03-24 Sun 11:04]
+
+Maybe there's some issue:
+- [[https://stackoverflow.com/questions/41352871/how-to-write-text-inside-a-rectangle-in-emacs-artist-mode][How to write text inside a rectangle in emacs artist-mode?]]
+  - when I type some characters inside a rectangle, the shape gets distorted.
+
+there's two method:
+1. use [[ditaa]]
+   - ditaa code block can press =, '=, and it will create a new buffer with artist mode enabled.
+2. artist mode code block
+#+begin_example
+
+#+BEGIN_SRC artist
+<- cursor right here
+#+END_SRC
+
+#+end_example
+
+and with your cursor in that spot do =, '= , and it will create a new buffer with artist mode enabled. Then do what you want to do and =:q= or press  =, '= to finish.
+
+** org-brain
+   #+begin_quote
+   i don't like it
+   #+end_quote
+
+
+   #+begin_example
+  ;; (require 'org-brain)
+
+  ;; (use-package org-brain :ensure t
+  ;; 	:init
+  ;; 	(setq org-brain-path "~/brain")
+  ;; 	;; For Evil users
+  ;; 	(with-eval-after-load 'evil
+  ;;     (evil-set-initial-state 'org-brain-visualize-mode 'emacs))
+  ;; 	:config
+  ;; 	(setq org-id-track-globally t)
+  ;; 	(setq org-id-locations-file "~/.emacs.d/.org-id-locations")
+  ;; 	(push '("b" "Brain" plain (function org-brain-goto-end)
+  ;; 			"* %i%?" :empty-lines 1)
+  ;;         org-capture-templates)
+  ;; 	(setq org-brain-visualize-default-choices 'all)
+  ;; 	(setq org-brain-title-max-length 12))
+   #+end_example
+
+** yasnippet
+| =SPC i s= | List all current yasnippets for inserting |
+| =SPC i S= | other                                     |
+
+** org-attach
+- [[https://emacs.stackexchange.com/questions/26412/human-readable-directory-tree-with-org-attach][Human readable directory tree with org-attach]]
+
+#+begin_quote
+it will commit "Synchronized attachments" automately if git exist.
+I do not know how to disable it.
+#+end_quote
+
+*** set directory
+- https://aqeel.cc/2016/12/21/emacs-org-mode-journal-and-log/
+
+ #+begin_example
+	 (setq org-attach-directory  (concat org-directory "/attach"))
+ #+end_example
+
+** org-web-tools
+- https://github.com/alphapapa/org-web-tools
+
+#+begin_quote
+Commands and functions for retrieving web page content and processing it into and displaying it as Org-mode content.
+#+end_quote
+
+*** quick key bindings ~, i w~
+*** from [[https://www.reddit.com/r/emacs/comments/abp6yr/capturing_archiving_and_viewing_archived_web/][Capturing, archiving, and viewing archived web sites with Emacs and Org]]
+
+1. Copy URL to clipboard.
+2. Open yequake-org-capture frame by pressing Super+C.
+3. Select capture template which uses org-web-tools--org-link-for-url to insert an Org link for the URL on the clipboard.
+4. Type the content.
+5. Attach an archive of the URL with org-web-tools-archive-attach.
+6. Press C-c C-c, which finalizes the capture and closes the capture frame.
+7. Navigate to the captured entry using org-recent-headings.
+8. View the archived web page in a browser using org-web-tools-archive-view.
+
+** TODO mu4e - email
+- http://www.macs.hw.ac.uk/~rs46/posts/2014-01-13-mu4e-email-client.html
+- https://coldnew.github.io/6a7aa5c1/
+
+* Latex
+** Install
+
+- install all latex package
+   #+begin_example
+    sudo apt-get install texlive-full
+   #+end_example
+
+** customized late template
+- https://emacs.stackexchange.com/questions/46017/is-there-a-way-to-export-latex-template-to-scimax-template
+- https://github.com/Literate-DevOps/literate-programming-tutorials/tree/master/how-to/00-convert-latex-template-into-org-mode-template
+
+** <<latex picture>>How can I stop org mode from moving my figures to the last page
+A friend of mine pointed me to the LaTex package =placeins=.
+
+#+BEGIN_EXAMPLE
+#+LATEX_HEADER: \usepackage{placeins}
+
+#+TITLE: fig:banana
+#+CAPTION: this is a banana figure
+[[/link/to/banana.png]]
+
+\FloatBarrier
+
+#+END_EXAMPLE
+
+The =FloatBarrier= stops floats (figures are floats) from jumping over them. I will need to look into passing [tbh] options to figures from org mode further.
+
+** TODO latex export pdf error: unicode char
+   - State "TODO"       from              [2019-03-24 Sun 12:12]
+
+pdflatex did not support to export Chinese latex
+
+- https://emacs-china.org/t/topic/5753
+
+** Aweson CV
+- https://github.com/posquit0/Awesome-CV
+
+Install fonts
+#+begin_example
+cd ${Awesome-CV}
+cp fonts/*.ttf /Library/Fonts/
+#+end_example
+
+Try to compile Latex document
+#+begin_example
+$ cd ${Awesome-CV}/examples/
+$ xelatex resume.tex
+This is XeTeX, Version 3.14159265-2.6-0.99999 (TeX Live 2018) (preloaded format=xelatex)
+ restricted \write18 enabled.
+entering extended mode
+(./resume.tex
+LaTeX2e <2018-04-01> patch level 2
+Babel <3.18> and hyphenation patterns for 84 language(s) loaded.
+...
+(./resume.out) (./resume.out)
+Overfull \hbox (1.46pt too wide) in paragraph at lines 80--81
+[]$[]$ $[]$$[]$
+Underfull \hbox (badness 10000) in paragraph at lines 80--81
+(./resume/summary.tex) (./resume/experience.tex) (./resume/honors.tex [1])
+(./resume/presentation.tex) (./resume/writing.tex) (./resume/committees.tex)
+(./resume/education.tex) (./resume/extracurricular.tex) [2] (./resume.aux) )
+(see the transcript file for additional information)
+Output written on resume.pdf (2 pages).
+Transcript written on resume.log.
+#+end_example
+
+看到訊息「Output written on resume.pdf (2 pages).」表示已經成功的使用xelatex工具將Latex template輸出成2頁的pdf檔案：
+
+* Git usage (magit)                                                     :git:
+** status =SPC g s=
+*** stage =s=
+*** commit =c c=
+*** push =p p=
+
+** diff =SPC g .= and =D=
+
+* Beorg (mobile)
+** iCloud and symbolic links
+#+BEGIN_EXAMPLE
+$ cd ~/Desktop
+$ ln -s ~/Library/Mobile\ Documents/iCloud~com~appsonthemove~beorg/Documents/org org
+#+END_EXAMPLE
+
+You’ll now have a link on your Desktop directly to your org files which are synced using iCloud with beorg.
+
+* Q&A
+** Org source block babel expansion stopped working
+"< s TAB expands to a ‘src’ code block.
+
+*** Answer
+we need use ~(require 'org-tempo)~
+
+** <<Org-Mode Evaluation of code disabled>> Org-Mode Evaluation of code disabled
+I removed ~/.emacs.d/elpa/25.2/develop/org-plus-contrib-* then restarted emacs and it works.
+
+** https://stackoverflow.com/questions/22878668/emacs-org-mode-evil-mode-tab-key-not-working
+** https://tw.saowen.com/a/698214fac4b0420417908eecc79ae11c2fbeda3f122b143173ce8d13bddc723e
+*** terminal use alt and backspace
+* REFERENCE
+** http://coldnew.github.io/COSCUP2013_org-mode/slide.html#18
+** www.zmonster.me/2018/02/28/org-mode-capture.html
+** https://huxiaoxing.com/setup/spacemacs.html
+** [[https://blog.aaronbieber.com/2016/01/30/dig-into-org-mode.html]]
